@@ -8,7 +8,8 @@ jobs:
   build-and-push:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2
+    - name: Checkout Code
+      uses: actions/checkout@v3
 
     - name: Set up Python
       uses: actions/setup-python@v2
@@ -26,7 +27,19 @@ jobs:
         username: ${{ secrets.DOCKER_USERNAME }}
         password: ${{ secrets.DOCKER_PASSWORD }}
 
-    - name: Build and push Docker image
+    - name: Build Docker image
       run: |
-        docker build -t dipanjanbits/iris-flower-classification-api .
-        docker push dipanjanbits/iris-flower-classification-api
+        docker build -t ${{ secrets.DOCKER_USERNAME }}/iris-flower-classification-api:latest .
+        docker push ${{ secrets.DOCKER_USERNAME }}/iris-flower-classification-api:latest
+
+    - name: Deploy on EC2 via SSH
+      uses: appleboy/ssh-action@v1.0.3
+      with:
+        host: ${{ secrets.EC2_HOST }}
+        username: ${{ secrets.EC2_USER }}
+        key: ${{ secrets.EC2_SSH_KEY }}
+        script: |
+          docker pull ${{ secrets.DOCKER_USERNAME }}/iris-flower-classification-api:latest
+          docker stop iris-flower-classification-api:latest || true
+          docker rm iris-flower-classification-api:latest || true
+          docker run -d --name iris-flower-classification-api:latest -p 8000:8000 ${{ secrets.DOCKER_USERNAME }}/iris-flower-classification-api:latest
