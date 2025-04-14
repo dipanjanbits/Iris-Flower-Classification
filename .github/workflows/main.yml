@@ -41,4 +41,4 @@ jobs:
         key: ${{ secrets.EC2_SSH_KEY }}
         script: |
           docker pull ${{ secrets.DOCKER_USERNAME }}/iris-flower-classification-api:latest
-          docker run -d --name iris-flower-classification-api:latest -p 8000:8000 ${{ secrets.DOCKER_USERNAME }}/iris-flower-classification-api:latest
+          docker run -d --name iris-flower-classification-api -p 8000:8000 ${{ secrets.DOCKER_USERNAME }}/iris-flower-classification-api:latest
