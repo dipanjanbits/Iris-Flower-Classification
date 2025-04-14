@@ -45,8 +45,9 @@ jobs:
         username: ${{ secrets.DOCKER_USERNAME }}
         password: ${{ secrets.DOCKER_PASSWORD }}
 
-    - name: Push Docker image
+    - name: Pull and Push Docker image
       run: |
+        docker pull ${{ secrets.DOCKER_USERNAME }}/iris-flower-classification-api:latest
         docker push ${{ secrets.DOCKER_USERNAME }}/iris-flower-classification-api:latest
 
   # Stage 3: Deploy
