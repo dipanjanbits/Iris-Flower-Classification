@@ -5,7 +5,7 @@ on:
     branches: [ main ]
 
 jobs:
-  build-and-push:
+  build:
     runs-on: ubuntu-latest
     steps:
     - name: Checkout Code
@@ -30,8 +30,11 @@ jobs:
     - name: Build Docker image
       run: |
         docker build -t ${{ secrets.DOCKER_USERNAME }}/iris-flower-classification-api:latest .
+  push:
+    - name: Push Docker image
+      run: |
         docker push ${{ secrets.DOCKER_USERNAME }}/iris-flower-classification-api:latest
-
+  deploy:
     - name: Deploy on EC2 via SSH
       uses: appleboy/ssh-action@v1.0.3
       with:
@@ -40,6 +43,4 @@ jobs:
         key: ${{ secrets.EC2_SSH_KEY }}
         script: |
           docker pull ${{ secrets.DOCKER_USERNAME }}/iris-flower-classification-api:latest
-          docker stop iris-flower-classification-api:latest || true
-          docker rm iris-flower-classification-api:latest || true
           docker run -d --name iris-flower-classification-api:latest -p 8000:8000 ${{ secrets.DOCKER_USERNAME }}/iris-flower-classification-api:latest
